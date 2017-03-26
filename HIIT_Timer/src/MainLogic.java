@@ -1,6 +1,7 @@
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.function.Function;
 import java.util.function.LongFunction;
 
@@ -29,12 +30,14 @@ public class MainLogic {
 	
 	public Time highIntensity, lowIntensity;
 	public int rep;
-	
+	HashSet<Long> visitedSeconds; 
 	public MainLogic(Time high, Time low, int rep){
 		Function<Time, Long> timeToMs = t -> (long) t.getSeconds() * 1000;
+		Function<Long, Long> MsToSeconds = t -> t / 1000;
 		highIntensity = high;
 		lowIntensity = low;
 		this.rep = rep;
+		visitedSeconds = new HashSet<>();
 		if(highIntensity.containsMinutes()){
 			
 		}
@@ -43,23 +46,29 @@ public class MainLogic {
 			System.out.println(highIntensityMS);
 			long ms = System.currentTimeMillis();
 			long msElapse = System.currentTimeMillis();
-			DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			DateFormat dateFormat = new SimpleDateFormat("mm:ss");
 			Date date = new Date();
-			Date tempDate = new Date();
-			System.out.println(dateFormat.format(date));
+			Date startDate = new Date();
+			
 			
 			while(msElapse != highIntensityMS){
 				msElapse = System.currentTimeMillis() - ms;
-			
-				if(msElapse % 1000 == 0 && !tempDate.equals(date))
+				
+				long time = highIntensity.getSeconds() - MsToSeconds.apply(msElapse);
+				if(msElapse % 1000 == 0 && !visitedSeconds.contains(time))
 				{
-					date = new Date();
-					System.out.println(dateFormat.format(date));
-					tempDate = date;
+					
+					visitedSeconds.add(time);
+					if(time < 10)
+						System.out.println("00:0"+time);
+					else
+						System.out.println("00:"+time);
+					//System.out.println(dateFormat.format(date));
 				}
 			}
 			System.out.println(System.currentTimeMillis() - ms);
 			date = new Date();
+			System.out.println(dateFormat.format(startDate));
 			System.out.println(dateFormat.format(date));
 		}
 	
